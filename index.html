@@ -7,48 +7,133 @@
 
     <style>
         body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #4b79a1, #283e51);
-            color: white;
-            text-align: center;
         }
-        .container {
-            margin-top: 100px;
+
+        .chat-container {
+            width: 60%;
+            background: white;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
+
+        .message {
+            margin: 12px 0;
         }
-        p {
-            font-size: 1.3rem;
-            margin-bottom: 40px;
-        }
-        a {
-            text-decoration: none;
-            background: #00c6ff;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            color: black;
-            border-radius: 10px;
-            transition: 0.3s ease;
+
+        .user {
             font-weight: bold;
+            color: #007bff;
         }
-        a:hover {
-            background: #88e0ff;
+
+        .bot {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        #inputBox {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+
+        #sendBtn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        #sendBtn:hover {
+            background: #0056b3;
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>🤖 Customer Service Chatbot</h1>
-        <p>Welcome! Click below to start chatting with our AI support bot.</p>
 
-        <!-- Link to the Streamlit App -->
-        <a href="http://localhost:8501" target="_blank">Open Chatbot</a>
-    </div>
+<div class="chat-container">
+    <h2>🤖 Customer Service Chatbot</h2>
+    <p>Start by entering your name.</p>
+
+    <div id="chatBox"></div>
+
+    <input type="text" id="inputBox" placeholder="Type a message..." />
+    <button id="sendBtn">Send</button>
+</div>
+
+<script>
+    let userName = null;
+    let userAge = null;
+
+    function extractAge(text) {
+        let match = text.match(/\b(\d{1,2})\b/);
+        if (match) {
+            let age = parseInt(match[1]);
+            if (age > 5 && age < 100) return age;
+        }
+        return null;
+    }
+
+    function botReply(message) {
+        if (!userName) {
+            userName = message.trim();
+            return `Hi ${userName}, nice to meet you! May I know your age?`;
+        }
+
+        if (!userAge) {
+            let age = extractAge(message);
+            if (age) {
+                userAge = age;
+                return `Thanks, ${userName}! You're ${age} years old. How can I help you today?`;
+            }
+            return "Please enter a valid age.";
+        }
+
+        message = message.toLowerCase();
+
+        if (message.includes("refund")) {
+            return "I understand you want a refund. Please provide your order ID.";
+        } else if (message.includes("late")) {
+            return "Sorry for the delay. I’ll escalate this issue right away.";
+        } else if (message.includes("problem") || message.includes("help")) {
+            return "I'm here to help. Please explain your issue.";
+        } else if (message.includes("bye") || message.includes("thank")) {
+            return "Thank you for chatting! Have a great day!";
+        }
+
+        return "Thanks for sharing. We’ve noted your concern.";
+    }
+
+    document.getElementById("sendBtn").addEventListener("click", function() {
+        let input = document.getElementById("inputBox").value;
+        if (input.trim() === "") return;
+
+        let chatBox = document.getElementById("chatBox");
+
+        chatBox.innerHTML += `<div class="message"><span class="user">You:</span> ${input}</div>`;
+        
+        let bot = botReply(input);
+        chatBox.innerHTML += `<div class="message"><span class="bot">Bot:</span> ${bot}</div>`;
+
+        document.getElementById("inputBox").value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+</script>
+
 </body>
 </html>
 
